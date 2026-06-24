@@ -1,0 +1,112 @@
+#!/usr/bin/env raku
+use lib 'lib';
+use Test;
+
+need Kubernetes;
+
+my class TestResource does Kubernetes::Resources::Core::K8sResource {
+    submethod BUILD(Str :$!name!) {
+        $!apiVersion = 'example/v1';
+        $!kind = 'Test';
+    }
+    method to-yaml(--> Str) { "kind: Test\nname: $.name\n" }
+}
+
+my class TestNamespaced does Kubernetes::Resources::Core::NamespacedResource {
+    submethod BUILD(Str :$!name!, Str :$!namespace!) {
+        $!apiVersion = 'example/v1';
+        $!kind = 'Widget';
+    }
+    method to-yaml(--> Str) { "kind: Widget\nname: $.name\n" }
+}
+
+subtest 'K8sResource rejects empty name' => {
+    plan 1;
+    dies-ok {
+        my class BadResource does Kubernetes::Resources::Core::K8sResource {
+            submethod BUILD(Str :$!name!) {
+                $!apiVersion = 'example/v1';
+                $!kind = 'Bad';
+            }
+            method to-yaml(--> Str) { '' }
+        }
+        BadResource.new(:name(''));
+    }, 'empty name rejected on K8sResource';
+}
+
+subtest 'NamespacedResource rejects empty namespace' => {
+    plan 1;
+    dies-ok {
+        my class BadNamespaced does Kubernetes::Resources::Core::NamespacedResource {
+            submethod BUILD(Str :$!name!, Str :$!namespace!) {
+                $!apiVersion = 'example/v1';
+                $!kind = 'Bad';
+            }
+            method to-yaml(--> Str) { '' }
+        }
+        BadNamespaced.new(:name<x>, :namespace(''));
+    }, 'empty namespace rejected on NamespacedResource';
+}
+
+subtest 'K8sResource to-yaml stub dies' => {
+    plan 1;
+    dies-ok {
+        my class StubResource does Kubernetes::Resources::Core::K8sResource {
+            submethod BUILD(Str :$!name!) {
+                $!apiVersion = 'example/v1';
+                $!kind = 'Stub';
+            }
+        }
+        StubResource.new(:name<x>).to-yaml;
+    }, 'default to-yaml dies';
+}
+
+subtest 'K8sResource.apply dry-run' => {
+    plan 2;
+    my $r = TestResource.new(:name<demo>);
+    ok $r.apply('kubectl', :dry-run), 'dry-run returns True';
+    ok $r.apply('kubectl', :dry-run), 'apply method available on role consumer';
+}
+
+subtest 'K8sResource.delete dry-run' => {
+    plan 1;
+    ok TestResource.new(:name<demo>).delete('kubectl', :dry-run), 'cluster delete dry-run';
+}
+
+subtest 'NamespacedResource.delete dry-run' => {
+    plan 1;
+    ok TestNamespaced.new(:name<demo>, :namespace<ns>).delete('kubectl', :dry-run),
+        'namespaced delete dry-run';
+}
+
+subtest 'ResourceRef.delete dry-run' => {
+    plan 1;
+    ok Kubernetes::Resources::Core::ResourceRef.new(
+        :name<odh>, :namespace<openshift-operators>,
+        :kubectl-name<subscription>, :kind<Subscription>,
+    ).delete('kubectl', :dry-run), 'ResourceRef delete dry-run';
+}
+
+subtest 'Namespace.to-yaml' => {
+    plan 2;
+    my $yaml = Kubernetes::Resources::Namespace::Namespace.new(:name<my-ns>).to-yaml;
+    ok $yaml.contains('kind: Namespace'), 'yaml has kind Namespace';
+    ok $yaml.contains('name: my-ns'), 'yaml has namespace name';
+}
+
+subtest 'Namespace dry-run lifecycle' => {
+    plan 4;
+    my $ns = Kubernetes::Resources::Namespace::Namespace.new(:name<test-ns>);
+    lives-ok { $ns.ensure('kubectl', :dry-run) }, 'ensure dry-run';
+    ok $ns.delete('kubectl', :dry-run), 'delete dry-run';
+    lives-ok { $ns.label('kubectl', 'tenant=true', :dry-run) }, 'label dry-run';
+    lives-ok { $ns.unlabel('kubectl', 'tenant', :dry-run) }, 'unlabel dry-run';
+}
+
+subtest 'Roles have RakuDoc' => {
+    plan 2;
+    ok Kubernetes::Resources::Core::K8sResource.WHY.defined, 'K8sResource has doc';
+    ok Kubernetes::Resources::Core::NamespacedResource.WHY.defined, 'NamespacedResource has doc';
+}
+
+done-testing;

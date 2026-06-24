@@ -1,0 +1,36 @@
+{
+  "auth": "zef:rmv",
+  "authors": [
+    "Rui Vieira"
+  ],
+  "build-depends": [],
+  "depends": [],
+  "description": "Kubernetes kubectl helpers for Raku",
+  "license": "Apache-2.0",
+  "name": "Kubernetes",
+  "perl": "6.d",
+  "provides": {
+    "Kubernetes": "lib/Kubernetes.rakumod",
+    "Kubernetes::Client": "lib/Kubernetes/Client.rakumod",
+    "Kubernetes::Exec": "lib/Kubernetes/Exec.rakumod",
+    "Kubernetes::Log": "lib/Kubernetes/Log.rakumod",
+    "Kubernetes::Operations": "lib/Kubernetes/Operations.rakumod",
+    "Kubernetes::Operations::Wait": "lib/Kubernetes/Operations/Wait.rakumod",
+    "Kubernetes::Resources": "lib/Kubernetes/Resources.rakumod",
+    "Kubernetes::Resources::Core": "lib/Kubernetes/Resources/Core.rakumod",
+    "Kubernetes::Resources::Namespace": "lib/Kubernetes/Resources/Namespace.rakumod",
+    "Kubernetes::Resources::Pod": "lib/Kubernetes/Resources/Pod.rakumod"
+  },
+  "resources": [],
+  "source-url": "https://github.com/ruivieira/Rmv-Kubernetes",
+  "tags": [
+    "kubernetes",
+    "k8s",
+    "kubectl",
+    "openshift"
+  ],
+  "test-depends": [
+    "Test"
+  ],
+  "version": "0.0.1"
+}

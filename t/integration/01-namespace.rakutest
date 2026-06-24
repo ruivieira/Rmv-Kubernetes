@@ -1,0 +1,39 @@
+#!/usr/bin/env raku
+use lib 'lib';
+use Test;
+
+use Kubernetes::Client;
+use Kubernetes::Resources::Namespace;
+
+unless %*ENV<KUBECONFIG> || %*ENV<KUBERNETES_SERVICE_HOST> {
+    plan skip-all => 'integration tests require a cluster (KUBECONFIG or in-cluster config)';
+}
+
+plan 3;
+
+my $kubectl = Kubernetes::Client::resolve-kubectl();
+my $ns-name = "rmv-k8s-test-{$*PID}";
+
+my $ns = Kubernetes::Resources::Namespace::Namespace.new(:name($ns-name));
+
+subtest 'namespace lifecycle against cluster' => {
+    plan 3;
+    lives-ok { $ns.ensure($kubectl) }, 'ensure creates namespace';
+    ok $ns.exists($kubectl), 'namespace exists after ensure';
+    ok $ns.delete($kubectl), 'delete removes namespace';
+}
+
+subtest 'namespace label and unlabel' => {
+    plan 2;
+    $ns.ensure($kubectl);
+    LEAVE { $ns.delete($kubectl) }
+    lives-ok { $ns.label($kubectl, 'rmv-kubernetes=test') }, 'label namespace';
+    lives-ok { $ns.unlabel($kubectl, 'rmv-kubernetes') }, 'unlabel namespace';
+}
+
+subtest 'resolve-kubectl returns a string' => {
+    plan 1;
+    ok $kubectl.chars > 0, 'kubectl path is non-empty';
+}
+
+done-testing;

@@ -1,0 +1,35 @@
+repos:
+  - repo: local
+    hooks:
+      - id: raku-check
+        name: raku syntax check
+        entry: ./scripts/raku-check.sh
+        language: script
+        files: '\.rakumod$|\.rakutest$|\.raku$|\.rakudoc$'
+        types: [file]
+
+      - id: raku-lint
+        name: raku lint
+        entry: ./scripts/raku-lint.sh
+        language: script
+        files: '\.rakumod$|\.raku$'
+        types: [file]
+
+      - id: raku-test
+        name: raku tests
+        entry: ./scripts/raku-test.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: stamp-changes
+        name: stamp Changes
+        entry: ./scripts/stamp-changes.sh
+        language: script
+        pass_filenames: false
+        stages: [pre-commit]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
