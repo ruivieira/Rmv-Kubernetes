@@ -39,7 +39,7 @@ jobs:
         uses: helm/kind-action@v1
         with:
           cluster_name: rmv-kubernetes
-          wait: true
+          wait: 60s
 
       - name: Verify cluster connectivity
         run: kubectl cluster-info
