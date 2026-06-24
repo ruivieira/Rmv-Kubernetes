@@ -17,7 +17,7 @@ unit: ## Run unit tests (no cluster required)
 
 integration: ## Run KinD integration tests (requires KUBECONFIG)
 	@for t in t/integration/*.rakutest; do \
-		[[ -e "$$t" ]] || continue; \
+		[ -e "$$t" ] || continue; \
 		echo "  $$t"; \
 		raku -Ilib "$$t" || exit 1; \
 	done

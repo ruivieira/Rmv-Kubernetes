@@ -3,15 +3,15 @@ use lib 'lib';
 use Test;
 
 use Kubernetes::Client;
+use Kubernetes::Exec;
 use Kubernetes::Resources::Namespace;
 
-unless %*ENV<KUBECONFIG> || %*ENV<KUBERNETES_SERVICE_HOST> {
-    plan skip-all => 'integration tests require a cluster (KUBECONFIG or in-cluster config)';
+my $kubectl = Kubernetes::Client::resolve-kubectl();
+unless Kubernetes::Exec::run-silent($kubectl, 'cluster-info') {
+    plan skip-all => 'integration tests require a reachable cluster (kubectl cluster-info)';
 }
-
 plan 3;
 
-my $kubectl = Kubernetes::Client::resolve-kubectl();
 my $ns-name = "rmv-k8s-test-{$*PID}";
 
 my $ns = Kubernetes::Resources::Namespace::Namespace.new(:name($ns-name));

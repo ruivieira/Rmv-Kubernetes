@@ -35,10 +35,14 @@ jobs:
       - name: Install dependencies
         run: zef install --/test --test-depends --deps-only .
 
-      - name: Install KinD
+      - name: Create KinD cluster
         uses: helm/kind-action@v1
         with:
-          install_only: true
+          cluster_name: rmv-kubernetes
+          wait: true
+
+      - name: Verify cluster connectivity
+        run: kubectl cluster-info
 
       - name: Run integration tests
         run: make integration
