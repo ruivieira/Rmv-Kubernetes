@@ -82,7 +82,7 @@ subtest 'NamespacedResource.delete dry-run' => {
 subtest 'ResourceRef.delete dry-run' => {
     plan 1;
     ok Kubernetes::Resources::Core::ResourceRef.new(
-        :name<odh>, :namespace<openshift-operators>,
+        :name<my-sub>, :namespace<my-namespace>,
         :kubectl-name<subscription>, :kind<Subscription>,
     ).delete('kubectl', :dry-run), 'ResourceRef delete dry-run';
 }

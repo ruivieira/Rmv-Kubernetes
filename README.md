@@ -1,7 +1,7 @@
 # Kubernetes
 
 [![CI](https://github.com/ruivieira/Rmv-Kubernetes/actions/workflows/test.yml/badge.svg)](https://github.com/ruivieira/Rmv-Kubernetes/actions/workflows/test.yml)
-[![version](https://img.shields.io/badge/version-v0.0.1-blue)](https://github.com/ruivieira/Rmv-Kubernetes/blob/main/META6.json)
+[![version](https://img.shields.io/badge/version-v0.0.2-blue)](https://github.com/ruivieira/Rmv-Kubernetes/blob/main/META6.json)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Raku kubectl helpers for Kubernetes and OpenShift workflows.
@@ -35,7 +35,7 @@ $ns.delete($kubectl);
 
 # Lightweight handle for resources without a manifest class
 my $ref = Kubernetes::Resources::Core::ResourceRef.new(
-    :name<my-sub>, :namespace<openshift-operators>,
+    :name<my-sub>, :namespace<my-namespace>,
     :kubectl-name<subscription>, :kind<Subscription>,
 );
 $ref.delete($kubectl);
@@ -48,7 +48,7 @@ my ($ready, $phase) = $pod.wait-until-ready($kubectl, :timeout-s(120));
 
 ## Installation
 
-From zef (after publishing):
+From zef:
 
 ```bash
 zef install 'Kubernetes:auth<zef:rmv>'
@@ -75,8 +75,6 @@ Requires `kubectl` (or set `KUBECTL` to an alternate binary path).
 | `Kubernetes::Resources::Namespace` | Namespace create/label/delete lifecycle |
 | `Kubernetes::Resources::Pod` | Pod resource with `WaitForReady` polling |
 | `Kubernetes::Operations::Wait` | `poll-until` and `WaitForReady` role |
-
-Domain-specific resources (OpenShift ImageStream, ODH DSC, TrustyAI EvalHub, etc.) live in consuming projects such as [ubik-raku](https://github.com/ruivieira/ubik) and extend the base roles from this package.
 
 ## Development
 
