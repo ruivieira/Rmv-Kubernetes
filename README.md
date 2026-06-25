@@ -1,31 +1,32 @@
 # Kubernetes
 
 [![CI](https://github.com/ruivieira/Rmv-Kubernetes/actions/workflows/test.yml/badge.svg)](https://github.com/ruivieira/Rmv-Kubernetes/actions/workflows/test.yml)
-[![version](https://img.shields.io/badge/version-v0.0.2-blue)](https://github.com/ruivieira/Rmv-Kubernetes/blob/main/META6.json)
+[![version](https://img.shields.io/badge/version-v0.0.3-blue)](https://github.com/ruivieira/Rmv-Kubernetes/blob/main/META6.json)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Raku kubectl helpers for Kubernetes and OpenShift workflows.
 
 **Distribution:** `Kubernetes:auth<zef:rmv>`  
-**Repository:** [Rmv-Kubernetes](https://github.com/ruivieira/Rmv-Kubernetes)
+**Repository:** [Rmv-Kubernetes](https://github.com/ruivieira/Rmv-Kubernetes)  
+**Tutorial:** [`docs/tutorial_woven.md`](docs/tutorial_woven.md)
 
 ## Synopsis
 
 ```raku
-use Kubernetes::Resources::Core;
+use Kubernetes::Resources::ConfigMap;
 use Kubernetes::Resources::Namespace;
 use Kubernetes::Client;
 
 my $kubectl = Kubernetes::Client::resolve-kubectl();
 
-# Typed resource with apply/delete
-class MyApp does Kubernetes::Resources::Core::NamespacedResource {
-    submethod BUILD(Str :$!name!, Str :$!namespace!) {
-        $!apiVersion = 'v1';
-        $!kind       = 'ConfigMap';
-    }
-    method to-yaml(--> Str) { ... }
-}
+# ConfigMap apply/delete and data helpers
+my $cm = Kubernetes::Resources::ConfigMap::ConfigMap.new(
+    :name<my-config>, :namespace<default>,
+    :data(%(foo => 'bar', 'app.yaml' => "key: value\n")),
+);
+$cm.apply($kubectl);
+say $cm.get-key($kubectl, 'foo');
+$cm.delete($kubectl);
 
 # Namespace lifecycle
 my $ns = Kubernetes::Resources::Namespace::Namespace.new(:name<my-ns>);
@@ -72,6 +73,7 @@ Requires `kubectl` (or set `KUBECTL` to an alternate binary path).
 | `Kubernetes::Exec` | Shell execution helpers (`run-live`, `run-query`, …) |
 | `Kubernetes::Log` | ANSI-colored log output (`log-info`, `log-step`, …) |
 | `Kubernetes::Resources::Core` | Base roles `K8sResource`, `NamespacedResource`; `ResourceRef` class |
+| `Kubernetes::Resources::ConfigMap` | ConfigMap apply/delete, YAML from `data`, `exists`, `get-key` |
 | `Kubernetes::Resources::Namespace` | Namespace create/label/delete lifecycle |
 | `Kubernetes::Resources::Pod` | Pod resource with `WaitForReady` polling |
 | `Kubernetes::Operations::Wait` | `poll-until` and `WaitForReady` role |
@@ -86,6 +88,9 @@ make lint         # style checks (trailing whitespace, tabs, …)
 make secrets      # gitleaks scan
 make pre-commit   # run all pre-commit hooks
 make all          # check + lint + unit + secrets
+make docs-kind    # KinD cluster + weave literate tutorial + teardown
+make docs         # weave docs/tutorial.md (requires cluster for weave)
+make docs-weave   # evaluate code cells → docs/tutorial_woven.md
 ```
 
 Install git hooks:
@@ -107,6 +112,10 @@ kind create cluster
 make integration
 kind delete cluster
 ```
+
+## Documentation
+
+[`docs/tutorial_woven.md`](docs/tutorial_woven.md) — tutorial with evaluated Raku cells and live `kubectl` output. Source: [`docs/tutorial.md`](docs/tutorial.md) (`make docs-weave` to regenerate).
 
 ## CI
 

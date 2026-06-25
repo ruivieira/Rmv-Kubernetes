@@ -1,0 +1,36 @@
+#!/usr/bin/env raku
+use lib 'lib';
+use Test;
+
+use Kubernetes::Client;
+use Kubernetes::Exec;
+use Kubernetes::Resources::ConfigMap;
+use Kubernetes::Resources::Namespace;
+
+my $kubectl = Kubernetes::Client::resolve-kubectl();
+unless Kubernetes::Exec::run-silent($kubectl, 'cluster-info') {
+    plan skip-all => 'integration tests require a reachable cluster (kubectl cluster-info)';
+}
+
+my $ns-name = "rmv-k8s-cm-{$*PID}";
+my $cm-name = "rmv-k8s-cm-test-{$*PID}";
+
+my $ns = Kubernetes::Resources::Namespace::Namespace.new(:name($ns-name));
+my $cm = Kubernetes::Resources::ConfigMap::ConfigMap.new(
+    :name($cm-name), :namespace($ns-name),
+    :data(%(greeting => 'hello', config => "key: value\n")),
+);
+
+subtest 'configmap lifecycle against cluster' => {
+    plan 6;
+    lives-ok { $ns.ensure($kubectl) }, 'ensure creates namespace';
+    LEAVE { $ns.delete($kubectl) }
+
+    ok $cm.apply($kubectl), 'apply creates configmap';
+    ok $cm.exists($kubectl), 'configmap exists after apply';
+    is $cm.get-key($kubectl, 'greeting'), 'hello', 'get-key returns data value';
+    ok $cm.delete($kubectl), 'delete removes configmap';
+    nok $cm.exists($kubectl), 'configmap absent after delete';
+}
+
+done-testing;

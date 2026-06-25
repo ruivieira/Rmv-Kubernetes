@@ -3,3 +3,4 @@ lib/.precomp/
 /Kubernetes-*
 ptests/
 sdist/
+docs/tutorial_tangled.raku

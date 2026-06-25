@@ -3,7 +3,9 @@
   "authors": [
     "Rui Vieira"
   ],
-  "build-depends": [],
+  "build-depends": [
+    "Text::CodeProcessing"
+  ],
   "depends": [],
   "description": "Kubernetes kubectl helpers for Raku",
   "license": "Apache-2.0",
@@ -18,6 +20,7 @@
     "Kubernetes::Operations::Wait": "lib/Kubernetes/Operations/Wait.rakumod",
     "Kubernetes::Resources": "lib/Kubernetes/Resources.rakumod",
     "Kubernetes::Resources::Core": "lib/Kubernetes/Resources/Core.rakumod",
+    "Kubernetes::Resources::ConfigMap": "lib/Kubernetes/Resources/ConfigMap.rakumod",
     "Kubernetes::Resources::Namespace": "lib/Kubernetes/Resources/Namespace.rakumod",
     "Kubernetes::Resources::Pod": "lib/Kubernetes/Resources/Pod.rakumod"
   },
@@ -32,5 +35,5 @@
   "test-depends": [
     "Test"
   ],
-  "version": "0.0.2"
+  "version": "0.0.3"
 }

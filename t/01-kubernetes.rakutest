@@ -109,4 +109,34 @@ subtest 'Roles have RakuDoc' => {
     ok Kubernetes::Resources::Core::NamespacedResource.WHY.defined, 'NamespacedResource has doc';
 }
 
+subtest 'ConfigMap.to-yaml' => {
+    plan 7;
+    my $cm = Kubernetes::Resources::ConfigMap::ConfigMap.new(
+        :name<test-cm>, :namespace<ns>,
+        :data(%(
+            simple => 'value',
+            multiline => "line1\nline2",
+            'app.yaml' => 'nested',
+        )),
+        :labels(%(test => 'true')),
+    );
+    my $yaml = $cm.to-yaml;
+    ok $yaml.contains('kind: ConfigMap'), 'yaml has kind ConfigMap';
+    ok $yaml.contains('name: test-cm'), 'yaml has configmap name';
+    ok $yaml.contains('namespace: ns'), 'yaml has namespace';
+    ok $yaml.contains('simple: value'), 'yaml has plain data value';
+    ok $yaml.contains("multiline: |"), 'yaml uses literal block for multiline';
+    ok $yaml.contains('  line1'), 'yaml has multiline content';
+    ok $yaml.contains('"app.yaml": nested'), 'yaml quotes dotted data key';
+}
+
+subtest 'ConfigMap dry-run apply/delete' => {
+    plan 2;
+    my $cm = Kubernetes::Resources::ConfigMap::ConfigMap.new(
+        :name<test-cm>, :namespace<ns>, :data(%(foo => 'bar')),
+    );
+    ok $cm.apply('kubectl', :dry-run), 'apply dry-run';
+    ok $cm.delete('kubectl', :dry-run), 'delete dry-run';
+}
+
 done-testing;
