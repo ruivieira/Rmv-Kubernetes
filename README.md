@@ -74,6 +74,7 @@ Requires `kubectl` (or set `KUBECTL` to an alternate binary path).
 | `Kubernetes::Log` | ANSI-colored log output (`log-info`, `log-step`, …) |
 | `Kubernetes::Resources::Core` | Base roles `K8sResource`, `NamespacedResource`; `ResourceRef` class |
 | `Kubernetes::Resources::ConfigMap` | ConfigMap apply/delete, YAML from `data`, `exists`, `get-key` |
+| `Kubernetes::Resources::Secret` | Secret apply/delete, YAML from `stringData`, `exists`, `has-key`, `ensure-key` |
 | `Kubernetes::Resources::Namespace` | Namespace create/label/delete lifecycle |
 | `Kubernetes::Resources::Pod` | Pod resource with `WaitForReady` polling |
 | `Kubernetes::Operations::Wait` | `poll-until` and `WaitForReady` role |

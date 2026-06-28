@@ -22,7 +22,8 @@
     "Kubernetes::Resources::Core": "lib/Kubernetes/Resources/Core.rakumod",
     "Kubernetes::Resources::ConfigMap": "lib/Kubernetes/Resources/ConfigMap.rakumod",
     "Kubernetes::Resources::Namespace": "lib/Kubernetes/Resources/Namespace.rakumod",
-    "Kubernetes::Resources::Pod": "lib/Kubernetes/Resources/Pod.rakumod"
+    "Kubernetes::Resources::Pod": "lib/Kubernetes/Resources/Pod.rakumod",
+    "Kubernetes::Resources::Secret": "lib/Kubernetes/Resources/Secret.rakumod"
   },
   "resources": [],
   "source-url": "https://github.com/ruivieira/Rmv-Kubernetes",

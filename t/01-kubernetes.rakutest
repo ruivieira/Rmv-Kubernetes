@@ -139,4 +139,43 @@ subtest 'ConfigMap dry-run apply/delete' => {
     ok $cm.delete('kubectl', :dry-run), 'delete dry-run';
 }
 
+subtest 'Secret.to-yaml' => {
+    plan 7;
+    my $secret = Kubernetes::Resources::Secret::Secret.new(
+        :name<test-secret>, :namespace<ns>,
+        :data(%(
+            'api-key' => 'sk-test',
+            multiline => "line1\nline2",
+        )),
+        :labels(%(test => 'true')),
+    );
+    my $yaml = $secret.to-yaml;
+    ok $yaml.contains('kind: Secret'), 'yaml has kind Secret';
+    ok $yaml.contains('name: test-secret'), 'yaml has secret name';
+    ok $yaml.contains('namespace: ns'), 'yaml has namespace';
+    ok $yaml.contains('stringData:'), 'yaml uses stringData';
+    ok $yaml.contains('api-key: sk-test'), 'yaml has plain-text data value';
+    ok $yaml.contains("multiline: |"), 'yaml uses literal block for multiline';
+    ok $yaml.contains('  line1'), 'yaml has multiline content';
+}
+
+subtest 'Secret dry-run apply/delete' => {
+    plan 2;
+    my $secret = Kubernetes::Resources::Secret::Secret.new(
+        :name<test-secret>, :namespace<ns>, :data(%(api-key => 'value')),
+    );
+    ok $secret.apply('kubectl', :dry-run), 'apply dry-run';
+    ok $secret.delete('kubectl', :dry-run), 'delete dry-run';
+}
+
+subtest 'Secret.ensure-key dry-run' => {
+    plan 1;
+    my $secret = Kubernetes::Resources::Secret::Secret.new(
+        :name<test-secret>, :namespace<ns>,
+    );
+    lives-ok {
+        $secret.ensure-key('kubectl', :key<api-key>, :from-env('MODEL_API_KEY'), :dry-run);
+    }, 'ensure-key dry-run without cluster or env';
+}
+
 done-testing;

@@ -2,6 +2,7 @@ Revision history for Kubernetes
 
 0.0.3  2026-06-25
     - Add Kubernetes::Resources::ConfigMap (apply/delete, to-yaml, exists, get-key)
+    - Add Kubernetes::Resources::Secret (apply/delete, to-yaml, exists, has-key, ensure-key)
 
 0.0.2  2026-06-24
     - Update docs

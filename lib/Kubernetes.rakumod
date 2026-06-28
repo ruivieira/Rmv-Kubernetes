@@ -28,6 +28,14 @@ Kubernetes - shared kubectl helpers for Raku scripts
   $cm.apply('kubectl');
   $cm.delete('kubectl');
 
+  # Secret apply/delete and ensure-key:
+  use Kubernetes::Resources::Secret;
+  my $secret = Kubernetes::Resources::Secret::Secret.new(
+      :name<my-secret>, :namespace<default>, :data(%(api-key => 'value')),
+  );
+  $secret.apply('kubectl');
+  $secret.delete('kubectl');
+
   # Namespace lifecycle:
   use Kubernetes::Resources::Namespace;
   my $ns = Kubernetes::Resources::Namespace::Namespace.new(:name<my-ns>);
@@ -43,6 +51,7 @@ fully-qualified submodule names:
 =item C<Kubernetes::Resources::Core::ResourceRef>
 =item C<Kubernetes::Resources::Pod::Pod>
 =item C<Kubernetes::Resources::ConfigMap::ConfigMap>
+=item C<Kubernetes::Resources::Secret::Secret>
 =item C<Kubernetes::Resources::Namespace::Namespace>
 =item C<Kubernetes::Operations::Wait::WaitForReady>
 =item C<Kubernetes::Client::resolve-kubectl()>
@@ -56,4 +65,5 @@ use Kubernetes::Resources::Core;
 use Kubernetes::Resources::ConfigMap;
 use Kubernetes::Resources::Namespace;
 use Kubernetes::Resources::Pod;
+use Kubernetes::Resources::Secret;
 use Kubernetes::Operations::Wait;

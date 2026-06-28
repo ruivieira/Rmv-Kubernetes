@@ -17,6 +17,7 @@ use Kubernetes::Exec;
 use Kubernetes::Resources::Core;
 use Kubernetes::Resources::ConfigMap;
 use Kubernetes::Resources::Namespace;
+use Kubernetes::Resources::Secret;
 
 my $kubectl = Kubernetes::Client::resolve-kubectl();
 say "kubectl: $kubectl";
@@ -89,6 +90,30 @@ say run-capture($kubectl, 'get', 'configmap', $cm-name, '-n', $ns-name, '-o', 'y
 $cm.delete($kubectl);
 my $cm-check = run($kubectl, 'get', 'configmap', $cm-name, '-n', $ns-name, :out, :err);
 say $cm-check.err.slurp(:close).trim if $cm-check.exitcode != 0;
+```
+
+## Secret lifecycle
+
+Apply a Secret in the test namespace, confirm it with `kubectl get` (table
+output — avoid `-o yaml` here because `.data` values are base64-encoded),
+exercise `ensure-key` idempotency, delete it, and confirm removal.
+
+```raku
+my $secret-name = "{$prefix}-secret-{$*PID}";
+my $secret = Kubernetes::Resources::Secret::Secret.new(
+    :name($secret-name), :namespace($ns-name),
+    :data(%('api-key' => 'tutorial-key')),
+);
+
+$secret.apply($kubectl);
+say run-capture($kubectl, 'get', 'secret', $secret-name, '-n', $ns-name);
+
+%*ENV<RMV_K8S_TUTORIAL_SECRET> = 'tutorial-ensure-key';
+$secret.ensure-key($kubectl, :key<api-key>, :from-env('RMV_K8S_TUTORIAL_SECRET'));
+
+$secret.delete($kubectl);
+my $secret-check = run($kubectl, 'get', 'secret', $secret-name, '-n', $ns-name, :out, :err);
+say $secret-check.err.slurp(:close).trim if $secret-check.exitcode != 0;
 ```
 
 ## Cleanup
